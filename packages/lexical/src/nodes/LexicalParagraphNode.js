@@ -6,7 +6,6 @@
  *
  * @flow strict
  */
-
 import type {
   EditorConfig,
   EditorThemeClasses,
@@ -16,9 +15,11 @@ import type {
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
-  LexicalNode,
 } from '../LexicalNode';
 
+import {$isLinkNode} from '@lexical/link';
+
+import {LexicalNode} from '../LexicalNode';
 import {getCachedClassNameArray} from '../LexicalUtils';
 import {ElementNode} from './LexicalElementNode';
 import {$isTextNode} from './LexicalTextNode';
@@ -105,6 +106,10 @@ export class ParagraphNode extends ElementNode {
       }
     }
     return false;
+  }
+  extractWithChild(child: LexicalNode): boolean {
+    // $FlowFixMe $isLinkNode's LexicalNode type doesn't match extractWithChild's. I think it's import issues.
+    return $isLinkNode(child);
   }
 }
 
