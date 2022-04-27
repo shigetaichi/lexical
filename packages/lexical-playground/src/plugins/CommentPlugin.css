@@ -7,7 +7,7 @@
  *
  */
 
-.CommentPlugin_CommentBox {
+.CommentPlugin_AddCommentBox {
   display: block;
   position: fixed;
   border-radius: 20px;
@@ -18,12 +18,21 @@
   z-index: 10;
 }
 
-.CommentPlugin_CommentBox_button {
+.CommentPlugin_AddCommentBox_button {
+  border-radius: 20px;
   border: 0;
-  width: 20px;
-  height: 20px;
   background: none;
-  margin: 20px 10px 10px 5px;
+  width: 40px;
+  height: 60px;
+  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.CommentPlugin_AddCommentBox_button:hover {
+  background-color: #f6f6f6;
 }
 
 i.add-comment {
@@ -31,6 +40,33 @@ i.add-comment {
   display: inline-block;
   height: 20px;
   width: 20px;
-  vertical-align: -0.25em;
+  vertical-align: -10px;
   background-image: url(../images/icons/chat-left-text.svg);
+}
+
+.CommentPlugin_CommentInputBox {
+  display: block;
+  position: fixed;
+  width: 250px;
+  min-height: 100px;
+  background-color: #fff;;
+  box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  z-index: 10;
+}
+
+.CommentPlugin_CommentInputBox::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  margin-left: 0.5em;
+  right: -1em;
+  top: calc(50% - 0.75em);
+  box-sizing: border-box;
+  border: 0.5em solid black;
+  border-color: transparent transparent #fff #fff;
+  transform-origin: 0 0;
+  transform: rotate(225deg);
+  box-shadow: -3px 3px 3px 0 rgba(0, 0, 0, 0.05);
 }

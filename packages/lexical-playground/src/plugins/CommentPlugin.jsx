@@ -13,18 +13,34 @@ import './CommentPlugin.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getSelection, $isRangeSelection, $isTextNode} from 'lexical';
-import {useEffect, useRef, useState} from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as React from 'react';
 // $FlowFixMe: Flow doesn't see react-dom module
 import {createPortal} from 'react-dom';
+import invariant from 'shared/invariant';
 import useLayoutEffect from 'shared/useLayoutEffect';
+
+export type CommentContextType = {
+  isActive: boolean,
+  setActive: (val: boolean) => void,
+};
 
 function AddCommentBox({
   anchorKey,
   editor,
+  onAddComment,
 }: {
   anchorKey: NodeKey,
   editor: LexicalEditor,
+  onAddComment: () => void,
 }): React$Node {
   const boxRef = useRef(null);
 
@@ -42,17 +58,38 @@ function AddCommentBox({
   }, [anchorKey, editor]);
 
   return (
-    <div className="CommentPlugin_CommentBox" ref={boxRef}>
-      <button className="CommentPlugin_CommentBox_button">
+    <div className="CommentPlugin_AddCommentBox" ref={boxRef}>
+      <button
+        className="CommentPlugin_AddCommentBox_button"
+        onClick={onAddComment}>
         <i className="icon add-comment" />
       </button>
     </div>
   );
 }
 
-export default function CommentPlugin(): null {
+function CommentInputBox({editor}: {editor: LexicalEditor}) {
+  const boxRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const domSelection = window.getSelection();
+    const boxElem = boxRef.current;
+    const range = domSelection.getRangeAt(0);
+    if (range != null && boxElem !== null) {
+      const {left, top} = range.getBoundingClientRect();
+      boxElem.style.left = `${left - 270}px`;
+      boxElem.style.top = `${top - 20}px`;
+    }
+  }, []);
+
+  return <div className="CommentPlugin_CommentInputBox" ref={boxRef} />;
+}
+
+export function CommentPlugin(): null {
   const [editor] = useLexicalComposerContext();
   const [activeAnchorKey, setActiveAnchorKey] = useState(null);
+  const {isActive, setActive} = useCommentContext();
+  const [showCommentInput, setShowCommentInput] = useState(false);
 
   useEffect(() => {
     return editor.registerUpdateListener(({editorState}) => {
@@ -72,12 +109,57 @@ export default function CommentPlugin(): null {
     });
   }, [editor]);
 
-  if (activeAnchorKey === null) {
+  const onAddComment = () => {
+    setActive(true);
+    setShowCommentInput(true);
+  };
+
+  if (showCommentInput) {
+    return createPortal(<CommentInputBox editor={editor} />, document.body);
+  }
+
+  if (activeAnchorKey === null || isActive) {
     return null;
   }
 
   return createPortal(
-    <AddCommentBox anchorKey={activeAnchorKey} editor={editor} />,
+    <AddCommentBox
+      anchorKey={activeAnchorKey}
+      editor={editor}
+      onAddComment={onAddComment}
+    />,
     document.body,
   );
+}
+
+const ReactCommentContext: React$Context<null | CommentContextType> =
+  createContext(null);
+
+export function CommentContext({children}: {children: React$Node}): React$Node {
+  const [isActive, setIsActive] = useState(false);
+  const setActive = useCallback((value) => {
+    setIsActive(value);
+  }, []);
+  const contextValue = useMemo(
+    () => ({
+      isActive,
+      setActive,
+    }),
+    [isActive, setActive],
+  );
+
+  return (
+    <ReactCommentContext.Provider value={contextValue}>
+      {children}
+    </ReactCommentContext.Provider>
+  );
+}
+
+export function useCommentContext(): CommentContextType {
+  const value = useContext(ReactCommentContext);
+  invariant(
+    value !== null,
+    'useCommentContext: missing CommentContext component in tree',
+  );
+  return value;
 }
