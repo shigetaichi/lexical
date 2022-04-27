@@ -23,7 +23,7 @@ export const IS_COLLAB =
   process.env.E2E_EDITOR_MODE === 'rich-text-with-collab';
 const IS_RICH_TEXT = process.env.E2E_EDITOR_MODE !== 'plain-text';
 const IS_PLAIN_TEXT = process.env.E2E_EDITOR_MODE === 'plain-text';
-const LEGACY_EVENTS = process.env.E2E_EVENTS_MODE === 'legacy-events';
+export const LEGACY_EVENTS = process.env.E2E_EVENTS_MODE === 'legacy-events';
 
 export async function initialize({
   page,
@@ -638,4 +638,22 @@ export async function enableCompositionKeyEvents(page) {
       true,
     );
   });
+}
+
+export async function pressToggleBold(page) {
+  await keyDownCtrlOrMeta(page);
+  await page.keyboard.press('b');
+  await keyUpCtrlOrMeta(page);
+}
+
+export async function pressToggleItalic(page) {
+  await keyDownCtrlOrMeta(page);
+  await page.keyboard.press('b');
+  await keyUpCtrlOrMeta(page);
+}
+
+export async function pressToggleUnderline(page) {
+  await keyDownCtrlOrMeta(page);
+  await page.keyboard.press('u');
+  await keyUpCtrlOrMeta(page);
 }
