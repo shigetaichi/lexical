@@ -200,43 +200,61 @@ function useCharacterStylesPopup(editor: LexicalEditor): React$Node {
   const [isStrikethrough, setIsStrikethrough] = useState(false);
   const [isCode, setIsCode] = useState(false);
 
-  useEffect(() => {
-    return editor.registerUpdateListener(({editorState}) => {
-      editorState.read(() => {
-        const selection = $getSelection();
+  const updatePopup = useCallback(() => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      const nativeSelection = window.getSelection();
+      const rootElement = editor.getRootElement();
 
-        if (!$isRangeSelection(selection)) {
-          return;
-        }
+      if (
+        !$isRangeSelection(selection) ||
+        rootElement === null ||
+        !rootElement.contains(nativeSelection.anchorNode)
+      ) {
+        setIsText(false);
+        return;
+      }
 
-        const node = getSelectedNode(selection);
+      const node = getSelectedNode(selection);
 
-        // Update text format
-        setIsBold(selection.hasFormat('bold'));
-        setIsItalic(selection.hasFormat('italic'));
-        setIsUnderline(selection.hasFormat('underline'));
-        setIsStrikethrough(selection.hasFormat('strikethrough'));
-        setIsCode(selection.hasFormat('code'));
+      // Update text format
+      setIsBold(selection.hasFormat('bold'));
+      setIsItalic(selection.hasFormat('italic'));
+      setIsUnderline(selection.hasFormat('underline'));
+      setIsStrikethrough(selection.hasFormat('strikethrough'));
+      setIsCode(selection.hasFormat('code'));
 
-        // Update links
-        const parent = node.getParent();
-        if ($isLinkNode(parent) || $isLinkNode(node)) {
-          setIsLink(true);
-        } else {
-          setIsLink(false);
-        }
+      // Update links
+      const parent = node.getParent();
+      if ($isLinkNode(parent) || $isLinkNode(node)) {
+        setIsLink(true);
+      } else {
+        setIsLink(false);
+      }
 
-        if (
-          !$isCodeHighlightNode(selection.anchor.getNode()) &&
-          selection.getTextContent() !== ''
-        ) {
-          setIsText($isTextNode(node));
-        } else {
-          setIsText(false);
-        }
-      });
+      if (
+        !$isCodeHighlightNode(selection.anchor.getNode()) &&
+        selection.getTextContent() !== ''
+      ) {
+        setIsText($isTextNode(node));
+      } else {
+        setIsText(false);
+      }
     });
   }, [editor]);
+
+  useEffect(() => {
+    document.addEventListener('selectionchange', updatePopup);
+    return () => {
+      document.removeEventListener('selectionchange', updatePopup);
+    };
+  }, [updatePopup]);
+
+  useEffect(() => {
+    return editor.registerUpdateListener(() => {
+      updatePopup();
+    });
+  }, [editor, updatePopup]);
 
   if (!isText || isLink) {
     return null;

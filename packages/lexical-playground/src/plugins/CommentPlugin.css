@@ -49,9 +49,9 @@ i.add-comment {
   position: fixed;
   width: 250px;
   min-height: 100px;
-  background-color: #fff;;
-  box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   z-index: 10;
 }
 
@@ -62,11 +62,52 @@ i.add-comment {
   height: 0;
   margin-left: 0.5em;
   right: -1em;
-  top: calc(50% - 0.75em);
+  top: 0;
+  left: calc(50% + 0.5em);
   box-sizing: border-box;
   border: 0.5em solid black;
   border-color: transparent transparent #fff #fff;
   transform-origin: 0 0;
-  transform: rotate(225deg);
+  transform: rotate(135deg);
   box-shadow: -3px 3px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.CommentPlugin_CommentInputBox_Buttons {
+  display: flex;
+  flex-direction: row;
+  padding: 0 10px 10px 10px;
+  gap: 10px;
+}
+
+.CommentPlugin_CommentInputBox_Button {
+  flex: 1;
+}
+
+.CommentPlugin_CommentInputBox_Button.primary {
+  background-color: rgb(66, 135, 245);
+  font-weight: bold;
+  color: #fff;
+}
+
+.CommentPlugin_CommentInputBox_Button.primary:hover {
+  background-color: rgb(53, 114, 211);
+}
+
+.CommentPlugin_CommentInputBox_EditorContainer {
+  position: relative;
+  margin: 10px;
+  border-radius: 5px;
+}
+
+.CommentPlugin_CommentInputBox_Editor {
+  position: relative;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 5px;
+  font-size: 15px;
+  caret-color: rgb(5, 5, 5);
+  display: block;
+  padding: 9px 10px 10px 9px;
+  min-height: 100px;
+  outline: 1px solid rgb(66, 135, 245);
 }
